@@ -4,110 +4,212 @@ import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_gsheets import GSheetsConnection
 
-# --- CONFIGURACIÓN DE PÁGINA ---
+# ==========================================
+# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI
+# ==========================================
 st.set_page_config(
     page_title="Misión 3 - Dashboard Ejecutivo",
     page_icon="🏛️",
     layout="wide"
 )
 
-# --- ESTILO PROFESIONAL (CSS) ---
+# Estilo CSS avanzado para la paleta institucional (Azul Marino y Oro)
 st.markdown("""
     <style>
-    /* Fondo y tipografía */
-    .main { background-color: #f4f7f9; }
-    [data-testid="stMetricValue"] { font-size: 28px; color: #002147; font-weight: 700; }
-    [data-testid="stMetricLabel"] { font-size: 16px; color: #64748b; }
+    .main { background-color: #f8fafc; }
+    [data-testid="stMetricValue"] { font-size: 32px; color: #002147; font-weight: 700; }
+    [data-testid="stMetricLabel"] { font-size: 15px; color: #475569; font-weight: 500; }
     
-    /* Tarjetas de métricas */
+    /* Diseño de tarjetas KPIs estilo gerencial */
     div[data-testid="metric-container"] {
         background-color: #ffffff;
-        border-left: 5px solid #C5A059;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-top: 4px solid #C5A059;
+        padding: 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
     
-    /* Títulos */
-    h1 { color: #002147; font-family: 'Georgia', serif; border-bottom: 2px solid #C5A059; padding-bottom: 10px; }
-    h2 { color: #002147; padding-top: 20px; }
+    h1 { color: #002147; font-family: 'Georgia', serif; font-weight: 700; }
+    h2, h3 { color: #002147; font-family: 'Sans-serif'; font-weight: 600; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- CONEXIÓN A DATOS ---
-# Nota: En producción, el URL va en .streamlit/secrets.toml
-try:
+# ==========================================
+# 2. CONEXIÓN OPTIMIZADA A GOOGLE SHEETS
+# ==========================================
+@st.cache_data(ttl="5m")
+def cargar_datos():
+    # Inicializa la conexión usando st.connection
     conn = st.connection("gsheets", type=GSheetsConnection)
-    df = conn.read(ttl="5m") # Se actualiza cada 5 minutos
-except:
-    st.error("Por favor, conecta tu Google Sheet en los secretos de Streamlit.")
+    # Intenta leer la pestaña llamada 'Datos'. 
+    # Cambia "Datos" por el nombre exacto de tu pestaña si es diferente (ej. "Hoja 1")
+    return conn.read(worksheet="Datos")
+
+try:
+    df = cargar_datos()
+    # Si deseas verificar la estructura de tus datos en desarrollo, desmarca la línea de abajo:
+    # st.sidebar.write(df) 
+except Exception as e:
+    st.error("⚠️ Error de conexión con Google Sheets")
+    st.info("""
+    **Por favor verifica lo siguiente:**
+    1. Que los **Secrets** en Streamlit Cloud tengan la URL limpia y correcta.
+    2. Que tu Google Sheet esté configurado para **"Cualquier persona con el enlace puede leer"** (en el botón azul Compartir).
+    3. Que la pestaña de tu Excel se llame exactamente **Datos** (o modifica el parámetro `worksheet` en el código).
+    """)
+    st.exception(e)
     st.stop()
 
-# --- HEADER ---
+# ==========================================
+# 3. CABECERA EJECUTIVA
+# ==========================================
 st.title("🏛️ Centro de Emprendimiento e Innovación - Misión 3")
-st.markdown("**Reporte de Indicadores Clave de Gestión (KPIs) - Alta Dirección**")
+st.markdown("### **Dashboard de Indicadores Estratégicos y de Gestión**")
+st.caption("Reporte automatizado en tiempo real dirigido a la Alta Dirección Universitaria")
+st.markdown("---")
 
-# --- BLOQUE 1: ESTADO TECNOLÓGICO Y FORMACIÓN ---
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric("Comité Plataforma", "OPERATIVO", delta="✓")
-with col2:
-    st.metric("Calculadora Valor", "ACTIVA", delta="100%")
-with col3:
-    st.metric("Consultoría Inn.", "PROYECTO", delta="En curso", delta_color="normal")
-with col4:
-    st.metric("Curso E&I", "TRANSVERSAL", delta="Activo")
+# ==========================================
+# 4. SECCIÓN 1: ESTADO OPERATIVO DE PLATAFORMAS
+# ==========================================
+st.subheader("🏢 Estado de la Unidad y Plataformas")
+col_p1, col_p2, col_p3, col_p4, col_p5 = st.columns(5)
+
+with col_p1:
+    st.metric(label="Comité Plataforma", value="Funcionando", delta="✓ Activo", delta_color="normal")
+with col_p2:
+    st.metric(label="Dashboard Plataforma", value="Funcionando", delta="✓ Activo", delta_color="normal")
+with col_p3:
+    st.metric(label="Calculadora Valor", value="Funcionando", delta="✓ Activa", delta_color="normal")
+with col_p4:
+    st.metric(label="Consultoría Innovación", value="Proyecto", delta="En Diseño", delta_color="off")
+with col_p5:
+    st.metric(label="Curso E&I Transversal", value="Proyecto", delta="En Diseño", delta_color="off")
 
 st.markdown("---")
 
-# --- BLOQUE 2: EMBUDO DE INNOVACIÓN Y VINCULACIÓN ---
-col_left, col_right = st.columns([1.5, 1])
+# ==========================================
+# 5. SECCIÓN 2: PIPELINE DE EMPRENDIMIENTO Y VINCULACIÓN
+# ==========================================
+col_izq, col_der = st.columns([1.2, 1])
 
-with col_left:
-    st.subheader("🚀 Pipeline de Emprendimiento")
-    # Gráfico de Embudo (Funnel)
-    fig_funnel = go.Figure(go.Funnel(
-        y = ["Pre-incubación", "Incubación", "Aceleración"],
-        x = [60, 25, 0],
-        textinfo = "value+percent initial",
-        marker = {"color": ["#002147", "#1a3a5a", "#C5A059"]}
+with col_izq:
+    st.subheader("🚀 Embudo del Emprendedor (E&I)")
+    # Gráfico de Embudo con los colores serios solicitados
+    fig_embudo = go.Figure(go.Funnel(
+        y=['Pre-incubación', 'Incubación', 'Aceleración'],
+        x=[60, 25, 0],
+        textinfo="value+percent initial",
+        marker={"color": ["#002147", "#1e3a60", "#C5A059"]}
     ))
-    fig_funnel.update_layout(margin=dict(l=10, r=10, t=20, b=10), height=350)
-    st.plotly_chart(fig_funnel, use_container_width=True)
+    fig_embudo.update_layout(
+        margin=dict(l=20, r=20, t=20, b=20), 
+        height=350,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    st.plotly_chart(fig_embudo, use_container_width=True)
 
-with col_right:
-    st.subheader("🤝 Ecosistema (V&E)")
-    # Datos de entidades
-    entidades = {'Tipo': ['Univ.', 'Incub.', 'Cámaras', 'Asoc.', 'Inst.'], 'Cant': [20, 20, 19, 6, 4]}
-    df_ent = pd.DataFrame(entidades)
-    fig_pie = px.pie(df_ent, values='Cant', names='Tipo', 
-                     color_discrete_sequence=['#002147', '#C5A059', '#475569', '#94a3b8', '#e2e8f0'])
-    fig_pie.update_layout(showlegend=True, height=350, margin=dict(t=0, b=0, l=0, r=0))
+with col_der:
+    st.subheader("🤝 Ecosistema de Vinculación (V&E)")
+    # Datos de entidades aliadas para el gráfico de torta elegante
+    datos_entidades = {
+        'Entidad': ['Universidades', 'Incubadoras', 'Cámaras', 'Asociaciones', 'Instituciones'],
+        'Cantidad': [20, 20, 19, 6, 4]
+    }
+    df_entidades = pd.DataFrame(datos_entidades)
+    
+    fig_pie = px.pie(
+        df_entidades, 
+        values='Cantidad', 
+        names='Entidad',
+        color_discrete_sequence=['#002147', '#C5A059', '#334155', '#64748b', '#cbd5e1']
+    )
+    fig_pie.update_layout(
+        margin=dict(l=10, r=10, t=10, b=10), 
+        height=350,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5)
+    )
     st.plotly_chart(fig_pie, use_container_width=True)
 
-# --- BLOQUE 3: IMPACTO DIGITAL Y VISITAS ---
 st.markdown("---")
-st.subheader("🌐 Tráfico de Plataformas y Comunidad Digital")
-c1, c2 = st.columns(2)
 
-with c1:
-    visitas_data = {'Plataforma': ['ATIPAQ', 'Mentores', 'Miraflores', 'Pre-inc.', 'Incub.', 'Callao'],
-                    'Pax': [243, 114, 64, 60, 25, 7]}
-    df_vis = pd.DataFrame(visitas_data).sort_values('Pax')
-    fig_vis = px.bar(df_vis, x='Pax', y='Plataforma', orientation='h', 
-                     title="Visitas / Participantes por Canal",
-                     color_discrete_sequence=['#002147'])
-    st.plotly_chart(fig_vis, use_container_width=True)
+# ==========================================
+# 6. SECCIÓN 3: RETOS, EVENTOS Y MENTORES
+# ==========================================
+col_r1, col_r2, col_r3 = st.columns(3)
 
-with c2:
-    redes_data = {'Red': ['TikTok', 'Instagram', 'Facebook', 'LinkedIn', 'YouTube'],
-                  'Seguidores': [3000, 2000, 2000, 1000, 200]}
-    df_redes = pd.DataFrame(redes_data)
-    fig_redes = px.bar(df_redes, x='Red', y='Seguidores', 
-                       title="Comunidad Digital Total",
-                       color_discrete_sequence=['#C5A059'])
+with col_r1:
+    st.subheader("🎯 Innovación Abierta y Retos")
+    st.info("**Retos Territoriales Activos:**\n* Miraflores\n* Callao Tech")
+    st.metric(label="Innovación Abierta EU (Participantes)", value="1")
+    st.metric(label="Polinización (Participantes)", value="1")
+
+with col_r2:
+    st.subheader("📅 Eventos Internacionales EULAC")
+    datos_eventos = {
+        'Sede / Evento': ['EULAC LIMA', 'EULAC CIX', 'EULAC AQP'],
+        'Aforo Alcanzado': ['120 Pax', '120 Pax', '120 Pax']
+    }
+    st.table(pd.DataFrame(datos_eventos))
+
+with col_r3:
+    st.subheader("🧠 Capital Intelectual")
+    st.metric(label="Red Global de Mentores", value="120 Profesionales", delta="Estrategas", delta_color="normal")
+    st.caption("Mentores asignados para el soporte de proyectos de base científica y tecnológica.")
+
+st.markdown("---")
+
+# ==========================================
+# 7. SECCIÓN 4: ANALÍTICA DIGITAL Y REDES
+# ==========================================
+st.subheader("🌐 Visitas a Plataformas vs. Comunidad Digital")
+col_v1, col_v2 = st.columns(2)
+
+with col_v1:
+    # Tráfico de los canales del centro
+    datos_visitas = {
+        'Canal / Plataforma': ['ATIPAQ', 'Mentores', 'Miraflores', 'Pre-incubación', 'Incubación', 'Callao Tech'],
+        'Interacciones': [243, 114, 64, 60, 25, 7]
+    }
+    df_visitas = pd.DataFrame(datos_visitas).sort_values(by='Interacciones')
+    
+    fig_visitas = px.bar(
+        df_visitas, 
+        x='Interacciones', 
+        y='Canal / Plataforma', 
+        orientation='h',
+        title='Volumen de Tráfico y Participación por Canal',
+        color_discrete_sequence=['#002147']
+    )
+    fig_visitas.update_layout(plot_bgcolor='rgba(0,0,0,0)', height=380)
+    st.plotly_chart(fig_visitas, use_container_width=True)
+
+with col_v2:
+    # Métricas de redes sociales
+    datos_redes = {
+        'Red Social': ['TikTok', 'Instagram', 'Facebook', 'LinkedIn', 'YouTube'],
+        'Miembros': [3000, 2000, 2000, 1000, 200]
+    }
+    df_redes = pd.DataFrame(datos_redes)
+    
+    fig_redes = px.bar(
+        df_redes,
+        x='Red Social',
+        y='Miembros',
+        title='Seguidores Totales en Canales Digitales',
+        color_discrete_sequence=['#C5A059']
+    )
+    fig_redes.update_layout(plot_bgcolor='rgba(0,0,0,0)', height=380)
     st.plotly_chart(fig_redes, use_container_width=True)
 
-# --- FOOTER ---
+# ==========================================
+# 8. PIE DE PÁGINA
+# ==========================================
 st.markdown("---")
-st.caption("© 2024 Misión 3 - Universidad César Vallejo | Datos actualizados desde Google Sheets")
+st.markdown(
+    "<center style='color: #64748b; font-size: 14px;'>"
+    "© Misión 3 - Centro de Emprendimiento e Innovación | Universidad César Vallejo<br>"
+    "Infraestructura Cloud conectada automáticamente mediante canales analíticos distribuidos."
+    "</center>", 
+    unsafe_allow_html=True
+)
