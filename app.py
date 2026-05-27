@@ -84,7 +84,7 @@ except Exception as e:
 # ==========================================
 st.title("🏛️ Centro de Emprendimiento e Innovación - Misión 3")
 st.markdown("### **Dashboard de Indicadores Estratégicos y de Gestión**")
-st.markdown("**Reporte gerencial automatizado en tiempo real | Diseño Claro de Alta Legibilidad**")
+st.markdown("**Reporte gerencial automatizado en tiempo real | Alta Dirección**")
 st.markdown("---")
 
 # ==========================================
