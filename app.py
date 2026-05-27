@@ -114,20 +114,28 @@ col_izq, col_der = st.columns([1.2, 1])
 with col_izq:
     st.subheader("🚀 Embudo del Emprendedor (E&I)")
     
-    # Arreglo de contraste en el gráfico de embudo
+    # Gráfico de embudo forzando las propiedades de color de texto y márgenes de etiquetas
     fig_embudo = go.Figure(go.Funnel(
         y=['Pre-incubación', 'Incubación', 'Aceleración'],
         x=[60, 25, 0],
         textinfo="value+percent initial",
-        marker={"color": ["#0f172a", "#334155", "#94a3b8"]}
+        marker={
+            "color": ["#0f172a", "#334155", "#64748b"],
+            "line": {"width": 1, "color": "#cbd5e1"}
+        },
+        textfont=dict(color="#ffffff", size=12)
     ))
     fig_embudo.update_layout(
         template="plotly_white",
-        margin=dict(l=40, r=40, t=20, b=20), 
+        margin=dict(l=120, r=40, t=20, b=20), # Más espacio a la izquierda para evitar cortes
         height=380,
         plot_bgcolor='#ffffff',
         paper_bgcolor='#ffffff',
-        font=dict(color="#000000", size=12) # Forzar texto del gráfico a negro estricto
+        font=dict(color="#000000", size=13)
+    )
+    # Corrección para que las etiquetas horizontales del eje Y sean negro puro
+    fig_embudo.update_yaxes(
+        tickfont=dict(color="#000000", size=13, family="Arial, sans-serif")
     )
     st.plotly_chart(fig_embudo, use_container_width=True)
 
@@ -139,7 +147,6 @@ with col_der:
     }
     df_entidades = pd.DataFrame(datos_entidades)
     
-    # Eliminación de fondo oscuro cuadrado del Pie Chart
     fig_pie = px.pie(
         df_entidades, 
         values='Cantidad', 
@@ -158,7 +165,7 @@ with col_der:
             y=-0.15, 
             xanchor="center", 
             x=0.5, 
-            font=dict(color="#000000", size=11) # Leyenda con texto negro claro
+            font=dict(color="#000000", size=11)
         )
     )
     st.plotly_chart(fig_pie, use_container_width=True)
@@ -192,7 +199,7 @@ with col_r3:
 st.markdown("---")
 
 # ==========================================
-# 7. SECCIÓN 4: ANALÍTICA DIGITAL Y REDES (CORRECCIÓN DE EJES E INVISIBILIDAD)
+# 7. SECCIÓN 4: ANALÍTICA DIGITAL Y REDES
 # ==========================================
 st.subheader("🌐 Visitas a Plataformas vs. Comunidad Digital")
 col_v1, col_v2 = st.columns(2)
@@ -213,7 +220,6 @@ with col_v1:
         color_discrete_sequence=['#0f172a'],
         template="plotly_white"
     )
-    # Corrección profunda del look and feel del eje X e Y
     fig_visitas.update_layout(
         plot_bgcolor='#ffffff', 
         paper_bgcolor='#ffffff',
@@ -239,7 +245,6 @@ with col_v2:
         color_discrete_sequence=['#475569'],
         template="plotly_white"
     )
-    # Corrección profunda de títulos de gráficos y leyendas de datos
     fig_redes.update_layout(
         plot_bgcolor='#ffffff', 
         paper_bgcolor='#ffffff',
