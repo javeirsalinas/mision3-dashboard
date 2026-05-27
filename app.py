@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from streamlit_gsheets import GSheetsConnection
 
 # ==========================================
-# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI (MODO CLARO CORPORATIVO)
+# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI (MODO CLARO ELEGANTE)
 # ==========================================
 st.set_page_config(
     page_title="Misión 3 - Dashboard Ejecutivo",
@@ -13,18 +13,23 @@ st.set_page_config(
     layout="wide"
 )
 
-# Inyección de CSS para garantizar que la interfaz sea 100% clara y legible
+# Inyección de CSS para forzar fondo blanco y letras negras/oscuras de alta legibilidad
 st.markdown("""
     <style>
-    /* Fondo general de la aplicación (Gris neutro ultra claro) */
+    /* Fondo principal de la aplicación (Blanco puro) */
     .main { 
-        background-color: #f8fafc !important; 
+        background-color: #ffffff !important; 
     }
     
-    /* Diseño de tarjetas KPIs estilo gerencial moderno (Fondo blanco, borde sutil) */
+    /* Forzar fondo blanco general en los bloques de Streamlit */
+    [data-testid="stAppViewContainer"] {
+        background-color: #ffffff !important;
+    }
+    
+    /* Diseño de tarjetas KPIs (Fondo blanco brillante con bordes finos en gris) */
     div[data-testid="metric-container"] {
         background-color: #ffffff !important;
-        border-top: 4px solid #475569 !important; /* Azul Grisáceo / Slate */
+        border-top: 4px solid #0f172a !important; /* Línea superior negra/azul noche */
         border-left: 1px solid #e2e8f0 !important;
         border-right: 1px solid #e2e8f0 !important;
         border-bottom: 1px solid #e2e8f0 !important;
@@ -33,33 +38,38 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
     }
     
-    /* Textos principales de los KPIs con alto contraste */
+    /* Textos de los KPIs en Negro y Gris Oscuro de alto contraste */
     [data-testid="stMetricValue"] { 
         font-size: 30px !important; 
-        color: #0f172a !important; /* Azul Noche ultra oscuro (casi negro) */
+        color: #000000 !important; /* Letras negras para el valor principal */
         font-weight: 700 !important; 
     }
     [data-testid="stMetricLabel"] { 
         font-size: 14px !important; 
-        color: #475569 !important; /* Gris Pizarra para etiquetas */
+        color: #334155 !important; /* Gris oscuro para las etiquetas */
         font-weight: 600 !important; 
     }
     
-    /* Configuración de títulos tipográficos */
+    /* Configuración de títulos principales en Negro */
     h1 { 
-        color: #0f172a !important; 
+        color: #000000 !important; 
         font-family: 'Helvetica Neue', Arial, sans-serif; 
         font-weight: 700; 
     }
     h2, h3 { 
-        color: #1e293b !important; 
+        color: #0f172a !important; 
         font-family: Arial, sans-serif; 
         font-weight: 600; 
     }
     
-    /* Forzar textos normales a color oscuro legible */
+    /* Forzar todos los textos secundarios y tablas a color negro/gris legible */
     p, span, li, td, th {
-        color: #334155 !important;
+        color: #000000 !important;
+    }
+    
+    /* Ajuste para las tablas nativas de Streamlit en fondo claro */
+    .stTable {
+        background-color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -80,7 +90,7 @@ except Exception as e:
     st.info("""
     **Por favor verifica lo siguiente:**
     1. Que tu Google Sheet siga en modo **"Cualquier persona con el enlace puede leer"**.
-    2. Que la primera pestaña de la izquierda tenga tus datos correctamente tabulados.
+    2. Que la primera pestaña de la izquierda tenga tus datos correctamente organizados.
     """)
     st.exception(e)
     st.stop()
@@ -90,7 +100,7 @@ except Exception as e:
 # ==========================================
 st.title("🏛️ Centro de Emprendimiento e Innovación - Misión 3")
 st.markdown("### **Dashboard de Indicadores Estratégicos y de Gestión**")
-st.caption("Reporte gerencial automatizado en tiempo real | Entorno de alta legibilidad")
+st.caption("Reporte gerencial automatizado en tiempo real | Diseño Claro de Alta Legibilidad")
 st.markdown("---")
 
 # ==========================================
@@ -119,20 +129,20 @@ col_izq, col_der = st.columns([1.2, 1])
 
 with col_izq:
     st.subheader("🚀 Embudo del Emprendedor (E&I)")
-    # Gráfico de Embudo en gama de azules y grises profesionales
+    # Gráfico de Embudo adaptado al fondo claro con escala de grises y azul elegante
     fig_embudo = go.Figure(go.Funnel(
         y=['Pre-incubación', 'Incubación', 'Aceleración'],
         x=[60, 25, 0],
         textinfo="value+percent initial",
-        marker={"color": ["#1e3a8a", "#475569", "#94a3b8"]} # Azul Rey, Gris Slate, Gris Plata
+        marker={"color": ["#0f172a", "#334155", "#64748b"]} # Negro azulado, Gris Oscuro, Gris Medio
     ))
     fig_embudo.update_layout(
-        template="plotly_white", # Fuerza el fondo de la gráfica a blanco
+        template="plotly_white", # Fuerza el fondo interno de la gráfica a blanco
         margin=dict(l=20, r=20, t=20, b=20), 
         height=350,
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="#334155")
+        font=dict(color="#000000") # Letras de los ejes en negro
     )
     st.plotly_chart(fig_embudo, use_container_width=True)
 
@@ -144,18 +154,18 @@ with col_der:
     }
     df_entidades = pd.DataFrame(datos_entidades)
     
-    # Gráfico de tarta con la nueva paleta seria azul-gris
+    # Gráfico de tarta en tonos de contraste profesional
     fig_pie = px.pie(
         df_entidades, 
         values='Cantidad', 
         names='Entidad',
-        color_discrete_sequence=['#1e3a8a', '#3b82f6', '#475569', '#64748b', '#cbd5e1'],
+        color_discrete_sequence=['#0f172a', '#1e293b', '#475569', '#94a3b8', '#cbd5e1'],
         template="plotly_white"
     )
     fig_pie.update_layout(
         margin=dict(l=10, r=10, t=10, b=10), 
         height=350,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5, font=dict(color="#334155"))
+        legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5, font=dict(color="#000000"))
     )
     st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -206,14 +216,14 @@ with col_v1:
         y='Canal / Plataforma', 
         orientation='h',
         title='Volumen de Tráfico y Participación por Canal',
-        color_discrete_sequence=['#1e3a8a'], # Azul Corporativo
+        color_discrete_sequence=['#0f172a'], # Barra en Negro Corporativo
         template="plotly_white"
     )
     fig_visitas.update_layout(
         plot_bgcolor='rgba(0,0,0,0)', 
         paper_bgcolor='rgba(0,0,0,0)',
         height=380,
-        font=dict(color="#334155")
+        font=dict(color="#000000")
     )
     st.plotly_chart(fig_visitas, use_container_width=True)
 
@@ -229,14 +239,14 @@ with col_v2:
         x='Red Social',
         y='Miembros',
         title='Seguidores Totales en Canales Digitales',
-        color_discrete_sequence=['#475569'], # Gris Pizarra / Slate
+        color_discrete_sequence=['#475569'], # Gris Oscuro
         template="plotly_white"
     )
     fig_redes.update_layout(
         plot_bgcolor='rgba(0,0,0,0)', 
         paper_bgcolor='rgba(0,0,0,0)',
         height=380,
-        font=dict(color="#334155")
+        font=dict(color="#000000")
     )
     st.plotly_chart(fig_redes, use_container_width=True)
 
@@ -245,7 +255,7 @@ with col_v2:
 # ==========================================
 st.markdown("---")
 st.markdown(
-    "<center style='color: #475569; font-size: 14px; font-weight: 500;'> "
+    "<center style='color: #000000; font-size: 14px; font-weight: 500;'> "
     "© Misión 3 - Centro de Emprendimiento e Innovación | Universidad César Vallejo<br>"
     "Infraestructura Cloud conectada automáticamente mediante canales analíticos distribuidos."
     "</center>", 
