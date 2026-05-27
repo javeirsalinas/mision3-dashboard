@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from streamlit_gsheets import GSheetsConnection
 
 # ==========================================
-# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI
+# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI (MODO CLARO)
 # ==========================================
 st.set_page_config(
     page_title="Misión 3 - Dashboard Ejecutivo",
@@ -13,24 +13,54 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo CSS avanzado para la paleta institucional (Azul Marino y Oro)
+# Estilo CSS avanzado para forzar una estética Clara, Limpia y Profesional (Navy & Gold)
 st.markdown("""
     <style>
-    .main { background-color: #f8fafc; }
-    [data-testid="stMetricValue"] { font-size: 32px; color: #002147; font-weight: 700; }
-    [data-testid="stMetricLabel"] { font-size: 15px; color: #475569; font-weight: 500; }
-    
-    /* Diseño de tarjetas KPIs estilo gerencial */
-    div[data-testid="metric-container"] {
-        background-color: #ffffff;
-        border-top: 4px solid #C5A059;
-        padding: 20px;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    /* Fondo principal de la aplicación (Gris muy claro/limpio) */
+    .main { 
+        background-color: #f8fafc !important; 
     }
     
-    h1 { color: #002147; font-family: 'Georgia', serif; font-weight: 700; }
-    h2, h3 { color: #002147; font-family: 'Sans-serif'; font-weight: 600; }
+    /* Forzar color de fondo y textos en tarjetas de métricas */
+    div[data-testid="metric-container"] {
+        background-color: #ffffff !important;
+        border-top: 4px solid #C5A059 !important;
+        border-left: 1px solid #e2e8f0 !important;
+        border-right: 1px solid #e2e8f0 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding: 20px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+    }
+    
+    /* Ajuste de colores de texto de las métricas para máxima legibilidad */
+    [data-testid="stMetricValue"] { 
+        font-size: 32px !important; 
+        color: #002147 !important; 
+        font-weight: 700 !important; 
+    }
+    [data-testid="stMetricLabel"] { 
+        font-size: 15px !important; 
+        color: #475569 !important; 
+        font-weight: 600 !important; 
+    }
+    
+    /* Títulos principales */
+    h1 { 
+        color: #002147 !important; 
+        font-family: 'Georgia', serif; 
+        font-weight: 700; 
+    }
+    h2, h3 { 
+        color: #002147 !important; 
+        font-family: 'Sans-serif'; 
+        font-weight: 600; 
+    }
+    
+    /* Textos informativos secundarios */
+    p, span, li {
+        color: #1e293b !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -39,13 +69,8 @@ st.markdown("""
 # ==========================================
 @st.cache_data(ttl="5m")
 def cargar_datos():
-    # Inicializa la conexión
     conn = st.connection("gsheets", type=GSheetsConnection)
-    
-    # URL directa de tu Google Sheet
     url_directa = "https://docs.google.com/spreadsheets/d/1aEIyDmHuHxzei8IRqMFKYDIZ1Hc3lvQoU6odzyuiL9M/edit?usp=sharing"
-    
-    # Leemos la primera pestaña disponible automáticamente para evitar el Error 400
     return conn.read(spreadsheet=url_directa)
 
 try:
@@ -55,7 +80,7 @@ except Exception as e:
     st.info("""
     **Por favor verifica lo siguiente:**
     1. Que tu Google Sheet siga configurado en modo **"Cualquier persona con el enlace puede leer"** (botón azul Compartir).
-    2. Que la primera pestaña (la que está más a la izquierda abajo) tenga los datos bien estructurados.
+    2. Que la primera pestaña tenga los datos bien estructurados.
     """)
     st.exception(e)
     st.stop()
@@ -94,7 +119,6 @@ col_izq, col_der = st.columns([1.2, 1])
 
 with col_izq:
     st.subheader("🚀 Embudo del Emprendedor (E&I)")
-    # Gráfico de Embudo
     fig_embudo = go.Figure(go.Funnel(
         y=['Pre-incubación', 'Incubación', 'Aceleración'],
         x=[60, 25, 0],
@@ -105,13 +129,13 @@ with col_izq:
         margin=dict(l=20, r=20, t=20, b=20), 
         height=350,
         plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="#002147") # Texto del gráfico en color oscuro para contraste
     )
     st.plotly_chart(fig_embudo, use_container_width=True)
 
 with col_der:
     st.subheader("🤝 Ecosistema de Vinculación (V&E)")
-    # Datos de entidades aliadas
     datos_entidades = {
         'Entidad': ['Universidades', 'Incubadoras', 'Cámaras', 'Asociaciones', 'Instituciones'],
         'Cantidad': [20, 20, 19, 6, 4]
@@ -127,7 +151,7 @@ with col_der:
     fig_pie.update_layout(
         margin=dict(l=10, r=10, t=10, b=10), 
         height=350,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5)
+        legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5, font=dict(color="#002147"))
     )
     st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -166,7 +190,6 @@ st.subheader("🌐 Visitas a Plataformas vs. Comunidad Digital")
 col_v1, col_v2 = st.columns(2)
 
 with col_v1:
-    # Tráfico de los canales del centro
     datos_visitas = {
         'Canal / Plataforma': ['ATIPAQ', 'Mentores', 'Miraflores', 'Pre-incubación', 'Incubación', 'Callao Tech'],
         'Interacciones': [243, 114, 64, 60, 25, 7]
@@ -181,11 +204,15 @@ with col_v1:
         title='Volumen de Tráfico y Participación por Canal',
         color_discrete_sequence=['#002147']
     )
-    fig_visitas.update_layout(plot_bgcolor='rgba(0,0,0,0)', height=380)
+    fig_visitas.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)', 
+        paper_bgcolor='rgba(0,0,0,0)',
+        height=380,
+        font=dict(color="#002147")
+    )
     st.plotly_chart(fig_visitas, use_container_width=True)
 
 with col_v2:
-    # Métricas de redes sociales
     datos_redes = {
         'Red Social': ['TikTok', 'Instagram', 'Facebook', 'LinkedIn', 'YouTube'],
         'Miembros': [3000, 2000, 2000, 1000, 200]
@@ -199,7 +226,12 @@ with col_v2:
         title='Seguidores Totales en Canales Digitales',
         color_discrete_sequence=['#C5A059']
     )
-    fig_redes.update_layout(plot_bgcolor='rgba(0,0,0,0)', height=380)
+    fig_redes.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)', 
+        paper_bgcolor='rgba(0,0,0,0)',
+        height=380,
+        font=dict(color="#002147")
+    )
     st.plotly_chart(fig_redes, use_container_width=True)
 
 # ==========================================
@@ -207,7 +239,7 @@ with col_v2:
 # ==========================================
 st.markdown("---")
 st.markdown(
-    "<center style='color: #64748b; font-size: 14px;'>"
+    "<center style='color: #475569; font-size: 14px; font-weight: 500;'> "
     "© Misión 3 - Centro de Emprendimiento e Innovación | Universidad César Vallejo<br>"
     "Infraestructura Cloud conectada automáticamente mediante canales analíticos distribuidos."
     "</center>", 
