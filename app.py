@@ -35,27 +35,27 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. CONEXIÓN OPTIMIZADA A GOOGLE SHEETS
+# 2. CONEXIÓN BLINDADA A GOOGLE SHEETS
 # ==========================================
 @st.cache_data(ttl="5m")
 def cargar_datos():
-    # Inicializa la conexión usando st.connection
+    # Inicializa la conexión
     conn = st.connection("gsheets", type=GSheetsConnection)
-    # Intenta leer la pestaña llamada 'Datos'. 
-    # Cambia "Datos" por el nombre exacto de tu pestaña si es diferente (ej. "Hoja 1")
-    return conn.read(worksheet="Datos")
+    
+    # URL directa de tu Google Sheet
+    url_directa = "https://docs.google.com/spreadsheets/d/1aEIyDmHuHxzei8IRqMFKYDIZ1Hc3lvQoU6odzyuiL9M/edit?usp=sharing"
+    
+    # Leemos la primera pestaña disponible automáticamente para evitar el Error 400
+    return conn.read(spreadsheet=url_directa)
 
 try:
     df = cargar_datos()
-    # Si deseas verificar la estructura de tus datos en desarrollo, desmarca la línea de abajo:
-    # st.sidebar.write(df) 
 except Exception as e:
     st.error("⚠️ Error de conexión con Google Sheets")
     st.info("""
     **Por favor verifica lo siguiente:**
-    1. Que los **Secrets** en Streamlit Cloud tengan la URL limpia y correcta.
-    2. Que tu Google Sheet esté configurado para **"Cualquier persona con el enlace puede leer"** (en el botón azul Compartir).
-    3. Que la pestaña de tu Excel se llame exactamente **Datos** (o modifica el parámetro `worksheet` en el código).
+    1. Que tu Google Sheet siga configurado en modo **"Cualquier persona con el enlace puede leer"** (botón azul Compartir).
+    2. Que la primera pestaña (la que está más a la izquierda abajo) tenga los datos bien estructurados.
     """)
     st.exception(e)
     st.stop()
@@ -94,7 +94,7 @@ col_izq, col_der = st.columns([1.2, 1])
 
 with col_izq:
     st.subheader("🚀 Embudo del Emprendedor (E&I)")
-    # Gráfico de Embudo con los colores serios solicitados
+    # Gráfico de Embudo
     fig_embudo = go.Figure(go.Funnel(
         y=['Pre-incubación', 'Incubación', 'Aceleración'],
         x=[60, 25, 0],
@@ -111,7 +111,7 @@ with col_izq:
 
 with col_der:
     st.subheader("🤝 Ecosistema de Vinculación (V&E)")
-    # Datos de entidades aliadas para el gráfico de torta elegante
+    # Datos de entidades aliadas
     datos_entidades = {
         'Entidad': ['Universidades', 'Incubadoras', 'Cámaras', 'Asociaciones', 'Instituciones'],
         'Cantidad': [20, 20, 19, 6, 4]
