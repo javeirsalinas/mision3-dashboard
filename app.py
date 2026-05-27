@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from streamlit_gsheets import GSheetsConnection
 
 # ==========================================
-# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI (MODO CLARO ELEGANTE)
+# 1. CONFIGURACIÓN DE LA PÁGINA Y UX/UI (MODO CLARO 100% CONTRASTE)
 # ==========================================
 st.set_page_config(
     page_title="Misión 3 - Dashboard Ejecutivo",
@@ -13,63 +13,53 @@ st.set_page_config(
     layout="wide"
 )
 
-# Inyección de CSS para forzar fondo blanco y letras negras/oscuras de alta legibilidad
+# Inyección de estilos CSS para asegurar fondo blanco puro y fuentes negras legibles
 st.markdown("""
     <style>
-    /* Fondo principal de la aplicación (Blanco puro) */
-    .main { 
+    /* Fondo principal de la aplicación y contenedores */
+    .main, [data-testid="stAppViewContainer"], [data-testid="stHeader"] { 
         background-color: #ffffff !important; 
     }
     
-    /* Forzar fondo blanco general en los bloques de Streamlit */
-    [data-testid="stAppViewContainer"] {
-        background-color: #ffffff !important;
-    }
-    
-    /* Diseño de tarjetas KPIs (Fondo blanco brillante con bordes finos en gris) */
+    /* Tarjetas de indicadores en fondo blanco con bordes definidos */
     div[data-testid="metric-container"] {
         background-color: #ffffff !important;
-        border-top: 4px solid #0f172a !important; /* Línea superior negra/azul noche */
-        border-left: 1px solid #e2e8f0 !important;
-        border-right: 1px solid #e2e8f0 !important;
-        border-bottom: 1px solid #e2e8f0 !important;
+        border-top: 4px solid #1e293b !important;
+        border-left: 1px solid #cbd5e1 !important;
+        border-right: 1px solid #cbd5e1 !important;
+        border-bottom: 1px solid #cbd5e1 !important;
         padding: 20px !important;
         border-radius: 8px !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
     }
     
-    /* Textos de los KPIs en Negro y Gris Oscuro de alto contraste */
+    /* Textos en negro de alto contraste para métricas */
     [data-testid="stMetricValue"] { 
         font-size: 30px !important; 
-        color: #000000 !important; /* Letras negras para el valor principal */
+        color: #000000 !important; 
         font-weight: 700 !important; 
     }
     [data-testid="stMetricLabel"] { 
         font-size: 14px !important; 
-        color: #334155 !important; /* Gris oscuro para las etiquetas */
+        color: #0f172a !important; 
         font-weight: 600 !important; 
     }
     
-    /* Configuración de títulos principales en Negro */
-    h1 { 
+    /* Títulos de sección */
+    h1, h2, h3, h4, h5, h6 { 
         color: #000000 !important; 
-        font-family: 'Helvetica Neue', Arial, sans-serif; 
-        font-weight: 700; 
-    }
-    h2, h3 { 
-        color: #0f172a !important; 
-        font-family: Arial, sans-serif; 
-        font-weight: 600; 
+        font-family: Arial, sans-serif;
     }
     
-    /* Forzar todos los textos secundarios y tablas a color negro/gris legible */
+    /* Modificación de alertas informativas e info boxes */
+    .stAlert {
+        background-color: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    
+    /* Forzar textos del pie de página y párrafos a negro */
     p, span, li, td, th {
         color: #000000 !important;
-    }
-    
-    /* Ajuste para las tablas nativas de Streamlit en fondo claro */
-    .stTable {
-        background-color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -87,12 +77,6 @@ try:
     df = cargar_datos()
 except Exception as e:
     st.error("⚠️ Error de conexión con Google Sheets")
-    st.info("""
-    **Por favor verifica lo siguiente:**
-    1. Que tu Google Sheet siga en modo **"Cualquier persona con el enlace puede leer"**.
-    2. Que la primera pestaña de la izquierda tenga tus datos correctamente organizados.
-    """)
-    st.exception(e)
     st.stop()
 
 # ==========================================
@@ -100,7 +84,7 @@ except Exception as e:
 # ==========================================
 st.title("🏛️ Centro de Emprendimiento e Innovación - Misión 3")
 st.markdown("### **Dashboard de Indicadores Estratégicos y de Gestión**")
-st.caption("Reporte gerencial automatizado en tiempo real | Diseño Claro de Alta Legibilidad")
+st.markdown("**Reporte gerencial automatizado en tiempo real | Diseño Claro de Alta Legibilidad**")
 st.markdown("---")
 
 # ==========================================
@@ -129,20 +113,21 @@ col_izq, col_der = st.columns([1.2, 1])
 
 with col_izq:
     st.subheader("🚀 Embudo del Emprendedor (E&I)")
-    # Gráfico de Embudo adaptado al fondo claro con escala de grises y azul elegante
+    
+    # Arreglo de contraste en el gráfico de embudo
     fig_embudo = go.Figure(go.Funnel(
         y=['Pre-incubación', 'Incubación', 'Aceleración'],
         x=[60, 25, 0],
         textinfo="value+percent initial",
-        marker={"color": ["#0f172a", "#334155", "#64748b"]} # Negro azulado, Gris Oscuro, Gris Medio
+        marker={"color": ["#0f172a", "#334155", "#94a3b8"]}
     ))
     fig_embudo.update_layout(
-        template="plotly_white", # Fuerza el fondo interno de la gráfica a blanco
-        margin=dict(l=20, r=20, t=20, b=20), 
-        height=350,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="#000000") # Letras de los ejes en negro
+        template="plotly_white",
+        margin=dict(l=40, r=40, t=20, b=20), 
+        height=380,
+        plot_bgcolor='#ffffff',
+        paper_bgcolor='#ffffff',
+        font=dict(color="#000000", size=12) # Forzar texto del gráfico a negro estricto
     )
     st.plotly_chart(fig_embudo, use_container_width=True)
 
@@ -154,7 +139,7 @@ with col_der:
     }
     df_entidades = pd.DataFrame(datos_entidades)
     
-    # Gráfico de tarta en tonos de contraste profesional
+    # Eliminación de fondo oscuro cuadrado del Pie Chart
     fig_pie = px.pie(
         df_entidades, 
         values='Cantidad', 
@@ -163,9 +148,18 @@ with col_der:
         template="plotly_white"
     )
     fig_pie.update_layout(
-        margin=dict(l=10, r=10, t=10, b=10), 
-        height=350,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5, font=dict(color="#000000"))
+        margin=dict(l=20, r=20, t=20, b=20), 
+        height=380,
+        plot_bgcolor='#ffffff',
+        paper_bgcolor='#ffffff',
+        legend=dict(
+            orientation="h", 
+            yanchor="bottom", 
+            y=-0.15, 
+            xanchor="center", 
+            x=0.5, 
+            font=dict(color="#000000", size=11) # Leyenda con texto negro claro
+        )
     )
     st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -198,7 +192,7 @@ with col_r3:
 st.markdown("---")
 
 # ==========================================
-# 7. SECCIÓN 4: ANALÍTICA DIGITAL Y REDES
+# 7. SECCIÓN 4: ANALÍTICA DIGITAL Y REDES (CORRECCIÓN DE EJES E INVISIBILIDAD)
 # ==========================================
 st.subheader("🌐 Visitas a Plataformas vs. Comunidad Digital")
 col_v1, col_v2 = st.columns(2)
@@ -216,15 +210,18 @@ with col_v1:
         y='Canal / Plataforma', 
         orientation='h',
         title='Volumen de Tráfico y Participación por Canal',
-        color_discrete_sequence=['#0f172a'], # Barra en Negro Corporativo
+        color_discrete_sequence=['#0f172a'],
         template="plotly_white"
     )
+    # Corrección profunda del look and feel del eje X e Y
     fig_visitas.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', 
-        paper_bgcolor='rgba(0,0,0,0)',
-        height=380,
+        plot_bgcolor='#ffffff', 
+        paper_bgcolor='#ffffff',
+        height=400,
         font=dict(color="#000000")
     )
+    fig_visitas.update_xaxes(title_text="Interacciones", tickfont=dict(color="#000000"), title_font=dict(color="#000000"), showgrid=True, gridcolor="#e2e8f0")
+    fig_visitas.update_yaxes(tickfont=dict(color="#000000"), title_font=dict(color="#000000"))
     st.plotly_chart(fig_visitas, use_container_width=True)
 
 with col_v2:
@@ -239,23 +236,26 @@ with col_v2:
         x='Red Social',
         y='Miembros',
         title='Seguidores Totales en Canales Digitales',
-        color_discrete_sequence=['#475569'], # Gris Oscuro
+        color_discrete_sequence=['#475569'],
         template="plotly_white"
     )
+    # Corrección profunda de títulos de gráficos y leyendas de datos
     fig_redes.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', 
-        paper_bgcolor='rgba(0,0,0,0)',
-        height=380,
+        plot_bgcolor='#ffffff', 
+        paper_bgcolor='#ffffff',
+        height=400,
         font=dict(color="#000000")
     )
+    fig_redes.update_xaxes(tickfont=dict(color="#000000"), title_font=dict(color="#000000"))
+    fig_redes.update_yaxes(title_text="Miembros", tickfont=dict(color="#000000"), title_font=dict(color="#000000"), showgrid=True, gridcolor="#e2e8f0")
     st.plotly_chart(fig_redes, use_container_width=True)
 
 # ==========================================
-# 8. PIE DE PÁGINA
+# 8. PIE DE PÁGINA CORPORATIVO
 # ==========================================
 st.markdown("---")
 st.markdown(
-    "<center style='color: #000000; font-size: 14px; font-weight: 500;'> "
+    "<center style='color: #000000; font-size: 14px; font-weight: 600;'> "
     "© Misión 3 - Centro de Emprendimiento e Innovación | Universidad César Vallejo<br>"
     "Infraestructura Cloud conectada automáticamente mediante canales analíticos distribuidos."
     "</center>", 
